@@ -264,9 +264,12 @@ class Issue extends \Eloquent {
 		/* Add to activity log for assignment if changed */
 		if($input['assigned_to'] != $this->assigned_to)
 		{
-			\User\Activity::add(5, $this->project_id, $this->id, \Auth::user()->id);
+			$activity = \User\Activity::add(5, $this->project_id, $this->id, \Auth::user()->id);
 		}
-
+		
+		/* Send notification */
+		$this->send_notification($activity);
+		
 		$this->fill($fill);
 		$this->save();
 

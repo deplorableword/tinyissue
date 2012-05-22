@@ -40,11 +40,13 @@ class Comment extends  \Eloquent {
 		$comment->save();
 
 		/* Add to user's activity log */
-		\User\Activity::add(2, $project->id, $issue->id, $comment->id);
-
+		$activity = \User\Activity::add(2, $project->id, $issue->id, $comment->id);
 
 		/* Add attachments to issue */
 		\DB::table('projects_issues_attachments')->where('upload_token', '=', $input['token'])->where('uploaded_by', '=', \Auth::user()->id)->update(array('issue_id' => $issue->id, 'comment_id' => $comment->id));
+
+		/* Send email notification */
+		$activity->send_notification();
 
 		/* Update the project */
 		$issue->updated_at = date('Y-m-d H:i:s');
