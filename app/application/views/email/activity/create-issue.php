@@ -8,7 +8,7 @@ Project: <a href="<?=$project->to();?>"><?=$project->name?></a>
 		<a href="<?=$issue->to()?>">#<?=$issue->id?> <?=$issue->title?></a>	
 	</p>
 	<p>
-		<?=$issue->body?>
+		<?=Project\Issue\Comment::format($issue->body)?>
 	</p>
 			
 	<p><a href="<?=$issue->to()?>">View this issue</a></p>
@@ -26,7 +26,13 @@ Project: <a href="<?=$project->to();?>"><?=$project->name?></a>
 </div>
 <hr />
 <div class="sent">
-	This notification was sent to	
-	<?php foreach($recipients as $recipient):?><?$recipient->firstname . ' ' . $recipient->lastname . ', ' ?><?php endforeach;?>
+	This notification was sent to:
+	
+	<?php if (count($recipients) > 0){?>
+	<ul>
+	<?php foreach($recipients as $key=>$recipient):
+		echo '<li>'.$recipient->firstname . ' ' . $recipient->lastname. ' ('.$recipient->email.')</li>';
+	endforeach;?>
+	</ul>
+	<?php } ?>
 </div>
-
