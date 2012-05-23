@@ -1,12 +1,14 @@
 <p>
 Project: <a href="<?=$project->to();?>"><?=$project->name?></a>
 </p>
+<hr />
 <div class="activity">
 	<p>
 		<?=$user->firstname?> <?=$user->lastname?> (<?=$user->email?>), <strong>commented on the issue</strong>: <br />
 		<a href="<?=$issue->to()?>">#<?=$issue->id?> <?=$issue->title?></a>	
 	</p>
 	<p>
+		<br />
 		<?=$comment->comment?>
 	</p>
 			
@@ -23,6 +25,7 @@ Project: <a href="<?=$project->to();?>"><?=$project->name?></a>
 		</ul>
 	<?php endif;?>
 </div>
+<hr />
 <div class="sent">
 	This notification was sent to	
 	<?php foreach($recipients as $recipient):?><?$recipient->firstname . ' ' . $recipient->lastname . ', ' ?><?php endforeach;?>
