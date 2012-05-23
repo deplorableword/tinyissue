@@ -69,13 +69,17 @@ class Activity extends \Eloquent {
 	public function send_notification()
 	{	
 		$notification_list = Array();
-		
+
 		$issue = \Project\Issue::find($this->item_id);
+		$user_info = $project_info = $comment_info = $attachment_info = null;
+		
+		$project_info = \Project::find($issue->project_id);
+		$user_info = \User::find($this->user_id);
 		
 		/* New Topic = Everyone currently assigned to the project */		
 		if ($this->type_id == 1)
 		{
-			foreach(\Project::find($project->project_id)->users()->get() as $user) {
+			foreach(\Project::find($issue->project_id)->users()->get() as $user) {
 				$notification_list[$user->id] = $user;
 			}
 
@@ -91,18 +95,16 @@ class Activity extends \Eloquent {
 				$notification_list[$activity->user_id] = \User::find($activity->user_id);
 			}
 		}
-		
-		$user_info = $project_info = $comment_info = $attachment_info = null;
-		
-		$project_info = \Project::find($issue->project_id);
-		$user_info = \User::find($this->user_id);
-		
+						
 		/* Comment */
 		if ($this->type_id == 2)
 		{
 			$comment_info = \Project\Issue\Comment::find($this->action_id);
 			$attachment_info = $comment_info->attachments()->get();
 		}
+		
+		$subject['create-issue'] = '['.$project_info->name.'] #'.$issue->id .' '.$issue->title;
+		$subject['comment'] = '['.$project_info->name.'] Re: #'.$issue->id . ' '.$issue->title;
 		
 		$activity_type = \Activity::find($this->type_id);
 		$view = \View::make('email.activity.'.$activity_type->activity,array(
@@ -114,11 +116,11 @@ class Activity extends \Eloquent {
 			'attachments' => $attachment_info,
 			'recipients' => $notification_list
 		));
- 
-		/* Send notification */
+				
+		/* Send notifications */
 		foreach ($notification_list as $user)
 		{
-			\Mail::send_email($view, $user->email, 'Your Tiny Issue Account');
+			\Mail::send_email($view, $user->email, $subject[$activity_type->activity]);
 		} 
 
 	}

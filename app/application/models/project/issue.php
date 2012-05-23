@@ -353,10 +353,13 @@ class Issue extends \Eloquent {
 		$issue->save();
 
 		/* Add to user's activity log */
-		\User\Activity::add(1, $project->id, $issue->id);
-
+		$activity = \User\Activity::add(1, $project->id, $issue->id);
+				
 		/* Add attachments to issue */
 		\DB::table('projects_issues_attachments')->where('upload_token', '=', $input['token'])->where('uploaded_by', '=', \Auth::user()->id)->update(array('issue_id' => $issue->id));
+
+		/* Send notification */
+		$activity->send_notification();
 
 		/* Return success and issue object */
 		return array(
