@@ -203,7 +203,8 @@ class Issue extends \Eloquent {
 		$this->assigned_to = $user_id;
 		$this->save();
 
-		\User\Activity::add(5, $this->project_id, $this->id, $user_id, null, $user_id);
+		$activity = \User\Activity::add(5, $this->project_id, $this->id, $user_id, null, $user_id);
+		$activity->send_notification();
 	}
 
 	/**
@@ -220,12 +221,14 @@ class Issue extends \Eloquent {
 			$this->closed_at = date('Y-m-d H:i:s');
 
 			/* Add to activity log */
-			\User\Activity::add(3, $this->project_id, $this->id);
+			$activity = \User\Activity::add(3, $this->project_id, $this->id);
+			$activity->send_notification();			
 		}
 		else
 		{
 			/* Add to activity Log */
-			\User\Activity::add(4, $this->project_id, $this->id);
+			$activity = \User\Activity::add(4, $this->project_id, $this->id);
+			$activity->send_notification();
 		}
 
 		$this->status = $status;

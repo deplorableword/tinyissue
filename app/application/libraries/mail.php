@@ -47,9 +47,14 @@ class Mail {
 	* @param   string  $subject
 	* @return  int
 	*/
-	public static function send_email($message, $to, $subject)
+	public static function send_email($message, $to, $subject, $from = NULL) 
 	{
-		$options = Config::get('application.mail');
+		if ($from == NULL) {
+			$options = Config::get('application.mail');
+		} else {
+			$options['from']['email'] = $from['email'];
+			$options['from']['name'] = $from['name'];
+		}
 
 		$transport = static::transport();
 

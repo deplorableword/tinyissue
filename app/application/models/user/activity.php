@@ -71,7 +71,7 @@ class Activity extends \Eloquent {
 		$notification_list = Array();
 
 		$issue = \Project\Issue::find($this->item_id);
-		$user_info = $project_info = $comment_info = $attachment_info = null;
+		$user_info = $project_info = $comment_info = $attachment_info =  $reassigned_info = null;
 		
 		$project_info = \Project::find($issue->project_id);
 		$user_info = \User::find($this->user_id);
@@ -103,8 +103,22 @@ class Activity extends \Eloquent {
 			$attachment_info = $comment_info->attachments()->get();
 		}
 		
+		/* reassigned to someone */
+		if ($this->type_id == 5)
+		{
+			$reassigned_info = \User::find($activity->action_id);
+		}
+		/* reassigned to no-one */
+		if ($this->type_id == 0)
+		{
+			$reassigned_info = false;
+		}
+		
 		$subject['create-issue'] = '['.$project_info->name.'] #'.$issue->id .' '.$issue->title;
 		$subject['comment'] = '['.$project_info->name.'] Re: #'.$issue->id . ' '.$issue->title;
+		$subject['close-issue'] = '['.$project_info->name.'] Closed: #'.$issue->id . ' '.$issue->title;		
+		$subject['reopen-issue'] = '['.$project_info->name.'] Reopened: #'.$issue->id . ' '.$issue->title;				
+		$subject['reassign-issue'] = '['.$project_info->name.'] Re-asssigned: #'.$issue->id . ' '.$issue->title;
 		
 		$activity_type = \Activity::find($this->type_id);
 		$view = \View::make('email.activity.'.$activity_type->activity,array(
@@ -114,13 +128,18 @@ class Activity extends \Eloquent {
 			'project' => $project_info,
 			'comment' => $comment_info,
 			'attachments' => $attachment_info,
-			'recipients' => $notification_list
+			'recipients' => $notification_list,
+			'reassigned'=> $reassigned_info
 		));
-				
+			
+		$from = Array();
+		$from['email'] = $user_info->email;
+		$from['name'] = $user_info->firstname . ' ' . $user_info->lastname;
+			
 		/* Send notifications */
 		foreach ($notification_list as $user)
 		{
-			\Mail::send_email($view, $user->email, $subject[$activity_type->activity]);
+			\Mail::send_email($view, $user->email, $subject[$activity_type->activity], $from);
 		} 
 
 	}
