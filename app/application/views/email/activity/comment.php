@@ -29,7 +29,7 @@ Project: <a href="<?=$project->to();?>"><?=$project->name?></a>
 <div class="sent">
 	This notification was sent to:
 	
-	<?php if (count($recipients) > 1){?>
+	<?php if (count($recipients) > 0){?>
 	<ul>
 	<?php foreach($recipients as $key=>$recipient):
 		echo '<li>'.$recipient->firstname . ' ' . $recipient->lastname. ' ('.$recipient->email.')</li>';
